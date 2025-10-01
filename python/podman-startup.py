@@ -1,21 +1,23 @@
 import subprocess
-import os
 
-# Caminho do certificado montado dentro da Podman machine
+# Caminho do certificado dentro da VM (vindo do bind mount)
 CERT_PATH_VM = "/mnt/certs/minha_ca.crt"
-
-# Nome que o certificado terá dentro da trust store
+# Nome que será dado ao certificado no trust store
 CERT_NAME = "minha_ca.crt"
 
-# Comandos que serão executados dentro da VM
+# Lista de comandos a executar dentro da Podman machine
 commands = [
     f"sudo cp {CERT_PATH_VM} /etc/pki/ca-trust/source/anchors/{CERT_NAME}",
     "sudo update-ca-trust extract"
 ]
 
-# Executa os comandos via `podman machine ssh`
-for cmd in commands:
-    print(f"Executando: {cmd}")
+def run_in_vm(cmd):
+    """Executa um comando dentro da Podman machine via SSH"""
     subprocess.run(["podman", "machine", "ssh", cmd], check=True)
 
-print("✅ Certificado instalado com sucesso na Podman machine.")
+if __name__ == "__main__":
+    for cmd in commands:
+        print(f"➡️ Executando na VM: {cmd}")
+        run_in_vm(cmd)
+
+    print("✅ Certificado instalado com sucesso na Podman machine.")
